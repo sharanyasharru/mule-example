@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="4c05a019-344e-4fdb-9ed6-7add3e18dbdd" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="choicegreetstringFlow" doc:id="3b4b1d0e-7af0-4d87-9cde-3dcd5edca8e7" >
+		<http:listener doc:name="Listener" doc:id="ad0b2016-f4f7-4974-9f64-7a1257171a84" config-ref="HTTP_Listener_config" path="/greetstring"/>
+		<logger level="INFO" doc:name="Logger" doc:id="2c90e566-e531-4bbd-a6e9-0d7e0d934e6f" message="incoming request::#[attributes.queryParams]"/>
+		<choice doc:name="Choice" doc:id="c86ad148-95e0-4bcf-892d-d66dfebdd3a3" >
+			<when expression="#[attributes.queryParams.string contains ('INDIA')]">
+				<logger level="INFO" doc:name="Logger" doc:id="aed754b4-4bfc-48d4-8c33-6adbf0c32dca" message="IND flow is started"/>
+				<ee:transform doc:name="Transform Message" doc:id="e66d767b-ab36-4db0-a98a-ad1d4db6adb1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status":"yes,candidate is eligible to enter into country"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="95b193e3-a25b-46f0-8767-1128923e1937" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status":"please check the proper country name"
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>
